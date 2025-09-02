@@ -1,0 +1,22 @@
+# Maven / Java
+/target/
+!.mvn/wrapper/maven-wrapper.jar
+*.iml
+.idea/
+*.log
+*.class
+*.jar
+*.war
+
+# OS / misc
+.DS_Store
+
+# Node / Angular
+crud_angular/node_modules/
+crud_angular/dist/
+crud_angular/.angular/
+
+# Env / secrets
+.env
+*.env
+.env.*
