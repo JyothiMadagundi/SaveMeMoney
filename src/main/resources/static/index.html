@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Product Search</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 16px; background: #fafafa; }
+        .search { display: flex; gap: 8px; margin-bottom: 16px; }
+        input[type="text"] { flex: 1; padding: 10px 12px; font-size: 16px; border: 1px solid #ddd; border-radius: 8px; }
+        button { padding: 10px 14px; font-size: 16px; border: 0; background: #2563eb; color: #fff; border-radius: 8px; cursor: pointer; }
+        button:disabled { opacity: .6; cursor: not-allowed; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+        .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,.05); display: flex; flex-direction: column; }
+        .thumb { width: 100%; height: 180px; object-fit: contain; background: #f3f4f6; border-radius: 8px; }
+        .title { font-size: 15px; font-weight: 600; margin: 10px 0 6px; color: #111827; }
+        .meta { font-size: 14px; color: #374151; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        .badge { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 999px; background: #eef2ff; color: #3730a3; }
+        .price { font-weight: 700; color: #065f46; }
+        .link { margin-top: 10px; }
+        .link a { text-decoration: none; color: #2563eb; }
+        .status { margin-bottom: 12px; color: #6b7280; font-size: 14px; }
+    </style>
+    <script>
+        async function search() {
+            const q = document.getElementById('q').value.trim();
+            const status = document.getElementById('status');
+            const grid = document.getElementById('grid');
+            if (!q) return;
+            status.textContent = 'Loading...';
+            grid.innerHTML = '';
+            try {
+                const res = await fetch(`/api/products/search/all?q=${encodeURIComponent(q)}`);
+                const data = await res.json();
+                status.textContent = `Found ${data.length} results`;
+                for (const item of data) {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+
+                    const img = document.createElement('img');
+                    img.className = 'thumb';
+                    img.src = item.imageUrl || '';
+                    img.alt = item.name || '';
+                    card.appendChild(img);
+
+                    const title = document.createElement('div');
+                    title.className = 'title';
+                    title.textContent = item.name || '';
+                    card.appendChild(title);
+
+                    const meta = document.createElement('div');
+                    meta.className = 'meta';
+                    const source = document.createElement('span');
+                    source.className = 'badge';
+                    source.textContent = item.source || 'Unknown';
+                    const price = document.createElement('span');
+                    price.className = 'price';
+                    price.textContent = item.price || '';
+                    const rating = document.createElement('span');
+                    rating.textContent = item.ratings ? `★ ${item.ratings}` : '';
+                    meta.appendChild(source);
+                    if (price.textContent) meta.appendChild(price);
+                    if (rating.textContent) meta.appendChild(rating);
+                    card.appendChild(meta);
+
+                    const link = document.createElement('div');
+                    link.className = 'link';
+                    const a = document.createElement('a');
+                    a.href = item.hyperlink || '#';
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    a.textContent = 'View';
+                    link.appendChild(a);
+                    card.appendChild(link);
+
+                    grid.appendChild(card);
+                }
+            } catch (e) {
+                status.textContent = 'Failed to fetch results';
+            }
+        }
+
+        function handleKey(e) { if (e.key === 'Enter') search(); }
+        window.addEventListener('DOMContentLoaded', () => {
+            const q = new URLSearchParams(location.search).get('q') || 'iphone15';
+            const input = document.getElementById('q');
+            input.value = q;
+            search();
+        });
+    </script>
+    </head>
+<body>
+    <div class="search">
+        <input id="q" type="text" placeholder="Search products..." onkeydown="handleKey(event)" />
+        <button onclick="search()">Search</button>
+    </div>
+    <div id="status" class="status"></div>
+    <div id="grid" class="grid"></div>
+</body>
+</html>
+
+
