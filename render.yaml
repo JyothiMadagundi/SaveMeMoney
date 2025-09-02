@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: savememoney-backend
+    env: docker
+    plan: free
+    autoDeploy: true
+    region: oregon
+    healthCheckPath: /
+    envVars:
+      - key: SERPAPI_KEY
+        sync: false
