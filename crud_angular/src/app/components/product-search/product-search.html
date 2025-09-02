@@ -1,0 +1,105 @@
+<div class="search-container">
+  <div class="floaters" aria-hidden="true">
+    <span class="icon i1">🛒</span>
+    <span class="icon i2">🔍</span>
+    <span class="icon i3">💲</span>
+  </div>
+  <div class="hero">
+    <div class="hero-title">Compare prices across Flipkart and Amazon </div>
+    <div class="hero-sub">Type a product name and we’ll fetch the best listings for you.</div>
+  </div>
+
+  <form class="search-bar" (ngSubmit)="search()">
+    <span class="search-icon">🔎</span>
+    <input [(ngModel)]="query" name="q" (keyup.enter)="search()" type="text" placeholder="Search e.g. iPhone 15, Sony TV, AirPods" />
+    <button type="submit" class="btn-primary">Search</button>
+  </form>
+
+  <div class="controls">
+    <div class="chips">
+      <button type="button" class="chip flipkart" [class.active]="selectedStores.has('Flipkart')" (click)="toggleStore('Flipkart')">Flipkart</button>
+      <button type="button" class="chip amazon" [class.active]="selectedStores.has('Amazon')" (click)="toggleStore('Amazon')">Amazon</button>
+    </div>
+    <div class="sort">
+      <label>Sort</label>
+      <select (change)="onSortChange(($any($event.target)).value)">
+        <option value="relevance" selected>Relevance</option>
+        <option value="priceAsc">Price: Low to High</option>
+        <option value="priceDesc">Price: High to Low</option>
+      </select>
+    </div>
+    <div class="views">
+      <button type="button" class="view-btn" [class.active]="viewMode==='grid'" (click)="setView('grid')">Grid</button>
+      <button type="button" class="view-btn" [class.active]="viewMode==='compare'" (click)="setView('compare')">Compare</button>
+    </div>
+  </div>
+
+  <div class="status" *ngIf="loading">Loading...</div>
+  <div class="status error" *ngIf="!loading && errorMessage">{{ errorMessage }}</div>
+  <div class="status" *ngIf="!loading && !errorMessage && products.length === 0 && query.trim()">No results found.</div>
+
+  <div class="grid" *ngIf="!loading && filteredProducts.length > 0 && viewMode==='grid'">
+    <div class="card" *ngFor="let p of filteredProducts" [class.flipkart]="p.source==='Flipkart'" [class.amazon]="p.source==='Amazon'" [class.croma]="p.source==='Croma'">
+      <a [href]="p.hyperlink" target="_blank" rel="noopener noreferrer">
+        <img [src]="p.imageUrl" alt="{{ p.name }}" />
+      </a>
+      <div class="card-content">
+        <h3 class="title">{{ p.name }}</h3>
+        <div class="meta">
+          <span class="price">{{ p.price }}</span>
+          <span class="rating" *ngIf="p.ratings">⭐ {{ p.ratings }}</span>
+          <span class="source" *ngIf="p.source">{{ p.source }}</span>
+        </div>
+        <div class="reviews" *ngIf="p.reviews">{{ p.reviews }}</div>
+        <a class="link btn-link" [href]="p.hyperlink" target="_blank" rel="noopener noreferrer">View Deal</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="compare" *ngIf="!loading && viewMode==='compare'">
+    <div class="col">
+      <div class="col-header flipkart">
+        <svg class="header-svg" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-label="Flipkart">
+          <rect x="1" y="3" rx="4" ry="4" width="12" height="14" fill="#34c5f0"/>
+        </svg>
+        Flipkart
+      </div>
+      <div class="col-cards">
+        <div class="card flipkart" *ngFor="let p of flipkartCompare">
+          <a [href]="p.hyperlink" target="_blank" rel="noopener noreferrer">
+            <img [src]="p.imageUrl" alt="{{ p.name }}" />
+          </a>
+          <div class="card-content">
+            <h3 class="title">{{ p.name }}</h3>
+            <div class="meta"><span class="price">{{ p.price }}</span><span class="rating" *ngIf="p.ratings">⭐ {{ p.ratings }}</span></div>
+            <div class="reviews" *ngIf="p.reviews">{{ p.reviews }}</div>
+            <a class="link btn-link" [href]="p.hyperlink" target="_blank" rel="noopener noreferrer">View Deal</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="col-header amazon">
+        <svg class="header-svg" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-label="Amazon">
+          <rect x="7" y="3" rx="4" ry="4" width="12" height="14" fill="#fbbf24"/>
+        </svg>
+        Amazon
+      </div>
+      <div class="col-cards">
+        <div class="card amazon" *ngFor="let p of amazonCompare">
+          <a [href]="p.hyperlink" target="_blank" rel="noopener noreferrer">
+            <img [src]="p.imageUrl" alt="{{ p.name }}" />
+          </a>
+          <div class="card-content">
+            <h3 class="title">{{ p.name }}</h3>
+            <div class="meta"><span class="price">{{ p.price }}</span><span class="rating" *ngIf="p.ratings">⭐ {{ p.ratings }}</span></div>
+            <div class="reviews" *ngIf="p.reviews">{{ p.reviews }}</div>
+            <a class="link btn-link" [href]="p.hyperlink" target="_blank" rel="noopener noreferrer">View Deal</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
